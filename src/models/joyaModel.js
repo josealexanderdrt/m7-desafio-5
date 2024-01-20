@@ -8,4 +8,13 @@ const getJoyas = async () => {
   return response.rows;
 };
 
-export{ getJoyas };
+const limitJoyas = async (limits = 6) => {
+  const SQLquery = {
+    text: "SELECT * FROM inventario ORDER BY id DESC LIMIT $1",
+    values: [limits],
+  };
+  const response = await pool.query(SQLquery);
+  return response.rows;
+};
+
+export { getJoyas, limitJoyas };
