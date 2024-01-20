@@ -30,7 +30,7 @@ const getAllJoyasPagination = async (req, res) => {
 
 const getIdJoya = async (req, res) => {
   try {
-    const {id} = req.params ; 
+    const { id } = req.params;
     const joyas = await getJoyasById(id);
     res.status(200).json({ Joya: joyas });
   } catch (error) {
@@ -45,6 +45,55 @@ const getIdJoya = async (req, res) => {
       .json({ error: responseError.message });
   }
 };
+
+const getJoyasFilter = async (req, res) => {
+  try {
+    const { precio_max, precio_min, categoria,metal } = req.query;
+    const filters = {
+      precio_max:precio_max,
+      precio_min:precio_min,
+      categoria:categoria,
+      metal:metal,
+    }
+    console.log("filters ", filters);
+    const joyas = await joyasFilter(filters);
+  //  const paginationData = pagination(joyas, items, page);
+    console.log(filters);
+    res.status(200).json(joyas);
+  } catch (error) {
+    const errorFound = findError(error.code);
+    const responseError = errorFound[0] || {
+      status: 500,
+      message: error.message,
+    };
+    console.log(error);
+    return res
+      .status(responseError.status)
+      .json({ error: responseError.message });
+  }
+};
+
+/* 
+const getJoyasFilter = async (req, res) => {
+  try {
+    const { items, page, filters } = req.query;
+    const joyas = await joyasFilter(filters);
+    console.log(filters);
+    const paginationData = pagination(joyas, items, page);
+    res.status(200).json(pag);
+  } catch (error) {
+    const errorFound = findError(error.code);
+    const responseError = errorFound[0] || {
+      status: 500,
+      message: error.message,
+    };
+    console.log(error);
+    return res
+      .status(responseError.status)
+      .json({ error: responseError.message });
+  }
+};
+ */
 
 const getJoyasLimit = async (req, res) => {
   try {
@@ -69,26 +118,6 @@ const getJoyasLimitAndOrder = async (req, res) => {
     console.log("buscar: ");
     const { order_by, limits, page } = req.query;
     const joyas = await orderAndLimitJoyas(order_by, limits, page);
-    res.status(200).json({ joyas: joyas });
-  } catch (error) {
-    const errorFound = findError(error.code);
-    const responseError = errorFound[0] || {
-      status: 500,
-      message: error.message,
-    };
-    console.log(error);
-    return res
-      .status(responseError.status)
-      .json({ error: responseError.message });
-  }
-};
-
-const getJoyasFilter = async (req, res) => {
-  try {
-    const { filters } = req.query;
-    const joyas = await joyasFilter(filters);
-    console.log("joyas", joyas);
-    console.log(filters);
     res.status(200).json({ joyas: joyas });
   } catch (error) {
     const errorFound = findError(error.code);

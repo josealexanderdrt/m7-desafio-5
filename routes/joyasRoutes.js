@@ -9,19 +9,11 @@ import {
 const router = express.Router();
 
 router.get("/joyas", getAllJoyasPagination);
+router.get("/joyas/filtros", getJoyasFilter);
 router.get("/joyas/:id", getIdJoya);
-router.get("/joyas/filtros", getAllJoyasPagination);
 
 
 
-
-
-
-
-router.get("/joyas-limit", getJoyasLimit);
-router.get("/joyas-limit-and-order", getJoyasLimitAndOrder);
-
-router.get("/joyas-filter", getJoyasFilter);
 
 
 export default router;

@@ -7,8 +7,21 @@ const createQuery = (entity, filters) => {
   console.log("impresion de filterEntries", filterEntries);
 
   for (const [key, value] of filterEntries) {
-    query += ` AND ${key} = $${values.length + 1}`;
+    if(value){
+    if(key =="precio_max"){
+      query += ` AND precio <= $${values.length + 1}`;  
+    }
+    else if(key == "precio_min"){
+      query += ` AND precio >= $${values.length + 1}`;
+    }
+    else{
+      query += ` AND ${key} = $${values.length + 1}`;
+    }
+  
+    
     values.push(value);
+
+  }
   }
   return {query, values}
 };
