@@ -1,16 +1,48 @@
 import {
-  getJoyas,
+  getJoyasById,
   limitJoyas,
-  orderAndLimitJoyas,
+  getOrderAndLimitJoyas,
+  joyasFilter,
+  getJoyaHateos,
 } from "../models/joyaModel.js";
 import { findError } from "../utilis.js/utilis.js";
 import pagination from "../helpers/paginator.js";
-const getAllJoyas = async (req, res) => {
+import HATEOAS from "../helpers/hateoas.js";
+
+const getAllJoyasPagination = async (req, res) => {
   try {
-    const joyas = await getJoyas();
-    res.status(200).json({ Joyas: joyas });
+    const { limits, page, order_by } = req.query;
+    const joyas = await getOrderAndLimitJoyas(order_by);
+    const paginationData = pagination(joyas, limits, page);
+    res.status(200).json(paginationData);
   } catch (error) {
-    console.error(error);
+    const errorFound = findError(error.code);
+    const responseError = errorFound[0] || {
+      status: 500,
+      message: error.message,
+    };
+    console.log(error);
+    return res
+      .status(responseError.status)
+      .json({ error: responseError.message });
+  }
+};
+
+const getIdJoya = async (req, res) => {
+  try {
+    const {id} = req.params ; 
+    const joyas = await getJoyasById(id);
+    res.status(200).json({ Joya: joyas });
+  } catch (error) {
+    const errorFound = findError(error.code);
+    const responseError = errorFound[0] || {
+      status: 500,
+      message: error.message,
+    };
+    console.log(error);
+    return res
+      .status(responseError.status)
+      .json({ error: responseError.message });
   }
 };
 
@@ -34,6 +66,7 @@ const getJoyasLimit = async (req, res) => {
 
 const getJoyasLimitAndOrder = async (req, res) => {
   try {
+    console.log("buscar: ");
     const { order_by, limits, page } = req.query;
     const joyas = await orderAndLimitJoyas(order_by, limits, page);
     res.status(200).json({ joyas: joyas });
@@ -49,12 +82,14 @@ const getJoyasLimitAndOrder = async (req, res) => {
       .json({ error: responseError.message });
   }
 };
-const getJoyasPagination = async (req, res) => {
+
+const getJoyasFilter = async (req, res) => {
   try {
-    const { items, page } = req.query;
-    const joyas = await getJoyas();
-    const paginationData = pagination(joyas, items, page);
-    res.status(200).json(paginationData);
+    const { filters } = req.query;
+    const joyas = await joyasFilter(filters);
+    console.log("joyas", joyas);
+    console.log(filters);
+    res.status(200).json({ joyas: joyas });
   } catch (error) {
     const errorFound = findError(error.code);
     const responseError = errorFound[0] || {
@@ -68,9 +103,21 @@ const getJoyasPagination = async (req, res) => {
   }
 };
 
+const getAllJoyasHateoas = async (req, res) => {
+  try {
+    const joyas = await getJoyaHateos();
+    const joyasWitHateoas = await HATEOAS("Joyas", joyas);
+    res.status(200).json({ joyas: joyasWitHateoas });
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export {
-  getAllJoyas,
+  getIdJoya,
   getJoyasLimit,
   getJoyasLimitAndOrder,
-  getJoyasPagination,
+  getAllJoyasPagination,
+  getJoyasFilter,
+  getAllJoyasHateoas,
 };

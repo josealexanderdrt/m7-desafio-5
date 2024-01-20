@@ -1,33 +1,42 @@
-const pagination = (data, items, page ) => {
-
+const pagination = (data, limits = 2, page = 1) => {
   const pageInt = Number(page);
-  const itemsInt = Number(items);
+  const limitInt = Number(limits);
 
- 
-  const startIndex = (pageInt - 1) * itemsInt;
-  const endIndex = pageInt * itemsInt;
+  const startIndex = (pageInt - 1) * limitInt;
+  const endIndex = pageInt * limitInt;
 
+  const pageData = data.slice(startIndex, endIndex);
+  const totaldata = pageData.length;
+  const totalStockData = pageData.reduce((sum, joya) => sum + joya.stock, 0);
+  const totaldataAndStock = {
+    "Total Joyas on this Page": totaldata,
+    "Total Stock of joyas show on this Page": totalStockData,
+    "You are in Page": `${pageInt}`
+  };
 
-  const results = {};
+  const results = { ...totaldataAndStock };
 
-  // valido si hay una página siguiente y agrego la info
   if (endIndex < data.length) {
     results.next = {
       page: pageInt + 1,
-      items: itemsInt,
+      limit: limitInt,
     };
   }
 
- // valido si hay una página anterior y agrego la info
   if (startIndex > 0) {
     results.previous = {
       page: pageInt - 1,
-      items: itemsInt,
+      limit: limitInt,
     };
   }
 
-   // agrego la porción paginada de los datos a los resultados
-  results.results = data.slice(startIndex, endIndex);
+  results.results = data.slice(startIndex, endIndex).map((joya) => {
+    return {
+      nombre: joya.nombre,
+      link: `http://localhost:3000/joyas/${joya.id}`,
+    };
+  });
+
   return results;
 };
 
